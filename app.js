@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const sendTemplateMessage = require('./sendTemplateMessage'); // Adjust according to your file structure
+const sendTemplateMessage = require('./api/sendTemplateMessage'); // Adjust according to your file structure
 const app = express();
 const PORT = 3000;
 
