@@ -1,7 +1,11 @@
 require('dotenv').config();
 const axios = require('axios');
 
-async function sendTemplateMessage(userMobile, userName) {
+const https = require('https');
+const agent = new https.Agent({ keepAlive: true });
+const sendTemplateMessage = async (userMobile, userName) => {
+    console.time('Send WhatsApp Message'); // Start tracking time
+
     try {
         const response = await axios({
             url: `https://graph.facebook.com/v20.0/${process.env.PHONENUMBER_ID}/messages`,
@@ -32,11 +36,17 @@ async function sendTemplateMessage(userMobile, userName) {
                     ],
                 },
             }),
+            httpsAgent: agent, // Use keep-alive agent
         });
-        // console.log(response.data);
+
+        console.timeEnd('Send WhatsApp Message'); // End and log time
+
+        return response;
     } catch (error) {
-        console.error('Error sending template message:', error.response ? error.response.data : error.message);
+        console.timeEnd('Send WhatsApp Message'); // Log time even if there's an error
+        console.error('Error sending WhatsApp message:', error);
+        throw error;
     }
-}
+};
 
 module.exports = sendTemplateMessage;

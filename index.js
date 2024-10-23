@@ -9,7 +9,7 @@ app.use(bodyParser.json());
 app.use(express.static('public')); // Serve static files from the 'public' directory
 
 // Route to handle form submission
-app.post('/submit-form', async (req, res) => {
+app.post('/submit-form', (req, res) => {
     const { name, mobile } = req.body;
 
     // Validate input
@@ -19,20 +19,23 @@ app.post('/submit-form', async (req, res) => {
 
     console.log('Received request:', { name, mobile });
 
-    try {
-        // Measure the time taken to send the message
-        const startTime = Date.now();
-        await sendTemplateMessage(mobile, name);
-        const duration = Date.now() - startTime;
-        console.log(`Message sent in ${duration} ms`);
+    // Send response immediately
+    res.status(200).json({ status: 'success', message: 'Form submitted. Processing message.' });
 
-        // Respond with success
-        res.status(200).json({ status: 'success', message: 'Form submitted and WhatsApp message sent successfully' });
-    } catch (error) {
-        console.error('Error handling form submission:', error);
-        res.status(500).json({ status: 'error', message: 'An error occurred while sending the message.' });
-    }
+    // Handle sending the WhatsApp message asynchronously
+    setImmediate(async () => {
+        console.time('Total Time to Process Message'); // Start tracking total time
+        try {
+            await sendTemplateMessage(mobile, name);
+            console.log('WhatsApp message sent successfully');
+        } catch (error) {
+            console.error('Error sending WhatsApp message:', error);
+        } finally {
+            console.timeEnd('Total Time to Process Message'); // End total time tracking
+        }
+    });
 });
+
 
 // Start the server 
 app.listen(PORT, () => {
